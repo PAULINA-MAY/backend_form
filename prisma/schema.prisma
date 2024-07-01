@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  Id_user          Int      @id @default(autoincrement())
+  FirstNames_user  String
+  LastNames_user   String
+  Email_user       String  @unique 
+  Password_user    String
+  ImgProfile_user  String
+  DateCreated_user DateTime @default(now())
+  DateModified_user DateTime @updatedAt
+
+  rol              Rol[]   
+  Form             Form[]
+  Answer           Answer[]
+}
+
+model Rol {
+  Id_rol      Int    @id @default(autoincrement())
+  Id_user_FK  Int
+  Name_rol    String @default("user") 
+  User        User   @relation(fields: [Id_user_FK], references: [Id_user], onDelete: Cascade)
+}
+
+model Form {
+  Id_f         Int       @id @default(autoincrement())
+  FK_Id_user   Int
+  Title_f      String    
+  Desc_p       String   
+  DateCreate_f DateTime  @default(now()) 
+  User         User      @relation(fields: [FK_Id_user], references: [Id_user], onDelete: Cascade)
+  Question     Question[]
+}
+
+model Question {
+  Id_q         Int       @id @default(autoincrement())
+  FK_Id_f      Int
+  Content_q    String   
+  Value_q      Int
+  DateCreate_q DateTime  @default(now()) 
+  Form         Form      @relation(fields: [FK_Id_f], references: [Id_f], onDelete: Cascade)
+  Option       Option[]
+  Answer       Answer[]
+}
+
+model Option {
+  Id_o      Int    @id @default(autoincrement())
+  FK_Id_q   Int
+  Content_o String
+  IsCorrect Boolean @default(false)
+  Question  Question @relation(fields: [FK_Id_q], references: [Id_q], onDelete: Cascade)
+  Answer    Answer[]
+}
+
+model Answer {
+  Id_a        Int      @id @default(autoincrement())
+  FK_Id_q     Int
+  FK_Id_u     Int
+  FK_Id_o     Int
+  DateCreate_a DateTime @default(now()) 
+  Question    Question @relation(fields: [FK_Id_q], references: [Id_q], onDelete: Cascade)
+  User        User     @relation(fields: [FK_Id_u], references: [Id_user], onDelete: Cascade)
+  Option      Option   @relation(fields: [FK_Id_o], references: [Id_o], onDelete: Cascade)
+}
+
